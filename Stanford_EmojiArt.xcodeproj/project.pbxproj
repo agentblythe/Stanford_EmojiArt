@@ -52,6 +52,8 @@
 		491930B826E003B200F4E126 /* Stanford_EmojiArt */ = {
 			isa = PBXGroup;
 			children = (
+				491930C926E0072E00F4E126 /* ViewModel */,
+				491930C826E0072A00F4E126 /* Model */,
 				491930B926E003B200F4E126 /* Stanford_EmojiArtApp.swift */,
 				491930BB26E003B200F4E126 /* ContentView.swift */,
 				491930BD26E003B500F4E126 /* Assets.xcassets */,
@@ -67,6 +69,20 @@
 				491930C026E003B500F4E126 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		491930C826E0072A00F4E126 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		491930C926E0072E00F4E126 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
