@@ -35,9 +35,11 @@ extension Array where Element == NSItemProvider {
         }
         return false
     }
+    
     func loadFirstObject<T>(ofType theType: T.Type, using load: @escaping (T) -> Void) -> Bool where T: NSItemProviderReading {
         loadObjects(ofType: theType, firstOnly: true, using: load)
     }
+    
     func loadFirstObject<T>(ofType theType: T.Type, using load: @escaping (T) -> Void) -> Bool where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
         loadObjects(ofType: theType, firstOnly: true, using: load)
     }
