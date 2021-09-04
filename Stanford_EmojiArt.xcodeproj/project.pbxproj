@@ -117,10 +117,10 @@
 		491930D126E2B2D700F4E126 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				491930D226E2B2EC00F4E126 /* Collection+IndexMatching.swift */,
-				491930D726E37E6400F4E126 /* CGRect+Centre.swift */,
 				491930D926E3AABC00F4E126 /* Array+LoadObjects.swift */,
+				491930D726E37E6400F4E126 /* CGRect+Centre.swift */,
 				491930DB26E3BEC700F4E126 /* Character+IsEmoji.swift */,
+				491930D226E2B2EC00F4E126 /* Collection+IndexMatching.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";

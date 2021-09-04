@@ -36,7 +36,7 @@ struct EmojiArtDocumentView: View {
     }
     
     var palette: some View {
-        ScrollingEmojisView(emojis: testEmojis)
+        ScrollingEmojisView(emojis: Self.testEmojis)
             .font(.system(size: defaultEmojiFontSize))
     }
     
@@ -72,12 +72,11 @@ struct EmojiArtDocumentView: View {
         return (Int(location.x), Int(location.y))
     }
     
-    let testEmojis = "🐶🐱🐭🐹🐰🦊🐻🐼🐻‍❄️🐨🐯🦁🐮🐷🐸🐵🐔🐒🦆🦅🦉🦇🐝🪱🐛🦋🐌🐞🐜🪰🐢🐙🕷"
+    static let testEmojis = "🐶🐱🐭🐹🐰🦊🐻🐼🐻‍❄️🐨🐯🦁🐮🐷🐸🐵🐔🐒🦆🦅🦉🦇🐝🪱🐛🦋🐌🐞🐜🪰🐢🐙🕷"
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        
         EmojiArtDocumentView(document: EmojiArtDocument())
     }
 }

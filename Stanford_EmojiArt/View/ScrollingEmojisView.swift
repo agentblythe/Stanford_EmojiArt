@@ -24,6 +24,6 @@ struct ScrollingEmojisView: View {
 
 struct ScrollingEmojisView_Previews: PreviewProvider {
     static var previews: some View {
-        ScrollingEmojisView(emojis: "🐶🐱🐭🐹🐰🦊🐻🐼🐻‍❄️🐨🐯🦁🐮🐷🐸🐵🐔🐒🦆🦅🦉🦇🐝🪱🐛🦋🐌🐞🐜🪰🐢🐙🕷")
+        ScrollingEmojisView(emojis: EmojiArtDocumentView.testEmojis)
     }
 }
