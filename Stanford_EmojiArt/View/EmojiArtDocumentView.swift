@@ -19,39 +19,69 @@ struct EmojiArtDocumentView: View {
         }
     }
     
+    ///
     var documentBody: some View {
         GeometryReader { geometry in
             ZStack {
-                Color.yellow
+                Color.gray.overlay(
+                    // Replace with AsyncImage
+                    // in Xcode 13
+                    OptionalImage(uiImage: document.backgroundImage)
+                        .position(convertFromEmojiCoordinates((0, 0), in: geometry))
+                )
                 ForEach(document.emojis) { emoji in
                     Text(emoji.text)
                         .font(.system(size: fontSize(for: emoji)))
                         .position(position(for: emoji, in: geometry))
                 }
             }
-            .onDrop(of: [.plainText], isTargeted: nil, perform: { providers, location in
+            .onDrop(of: [.plainText, .url, .image], isTargeted: nil, perform: { providers, location in
                 return drop(providers: providers, at: location, in: geometry)
             })
         }
     }
     
+    ///
     var palette: some View {
         ScrollingEmojisView(emojis: Self.testEmojis)
             .font(.system(size: defaultEmojiFontSize))
     }
     
+    ///
     private func drop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
-        return providers.loadObjects(ofType: String.self) { string in
-            if let emoji = string.first, emoji.isEmoji {
-                document.addEmoji(String(emoji), at: convertToEmojiCoordinates(location, in: geometry), size: defaultEmojiFontSize)
+        
+        // URL
+        var found = providers.loadObjects(ofType: URL.self) { url in
+            document.setBackground(.url(url.imageURL))
+        }
+        
+        // Data
+        if !found {
+            found = providers.loadObjects(ofType: UIImage.self, using: { image in
+                if let data = image.jpegData(compressionQuality: 1.0) {
+                    document.setBackground(.imageData(data))
+                }
+            })
+        }
+        
+        // String
+        if !found {
+            found = providers.loadObjects(ofType: String.self) { string in
+                if let emoji = string.first, emoji.isEmoji {
+                    document.addEmoji(String(emoji), at: convertToEmojiCoordinates(location, in: geometry), size: defaultEmojiFontSize)
+                }
             }
         }
+        
+        return found
     }
     
+    ///
     private func fontSize(for emoji: EmojiArt.Emoji) -> CGFloat {
         CGFloat(emoji.size)
     }
     
+    ///
     private func position(for emoji: EmojiArt.Emoji, in geometry: GeometryProxy) -> CGPoint {
         return convertFromEmojiCoordinates((emoji.x, emoji.y), in: geometry)
     }
