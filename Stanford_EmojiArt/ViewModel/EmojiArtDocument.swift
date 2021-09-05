@@ -21,10 +21,12 @@ class EmojiArtDocument: ObservableObject {
         switch emojiArt.background {
         
         case .url(let url):
+            backgroundImageFetchStatus = .fetching
             DispatchQueue.global(qos: .userInitiated).async {
                 if let imageData = try? Data(contentsOf: url) {
                     DispatchQueue.main.async { [weak self] in
                         /// Check that the background that is returned is equal to the one that the model holds, otherwise we'll just ignore it as the user does not want this background image anymore, perhaps the first one took ages to load so they chose another one for example
+                        self?.backgroundImageFetchStatus = .idle
                         if self?.emojiArt.background == EmojiArt.Background.url(url) {
                             self?.backgroundImage = UIImage(data: imageData)
                         }
@@ -56,6 +58,14 @@ class EmojiArtDocument: ObservableObject {
     
     ///
     @Published var backgroundImage: UIImage?
+    
+    ///
+    @Published var backgroundImageFetchStatus = BackgroundImageFetchStatus.idle
+    
+    enum BackgroundImageFetchStatus {
+        case idle
+        case fetching
+    }
     
     // MARK: Intents
     
