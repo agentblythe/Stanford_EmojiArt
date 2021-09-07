@@ -8,6 +8,7 @@
 import Foundation
 
 extension URL {
+    /// Extracting the actual url to an image from a url that might contain other info (essentially looking for the imgurl key) imgurl is a "well known" key that can be embedded in a url that says what the actual image url is
     var imageURL: URL {
         for query in query?.components(separatedBy: "&") ?? [] {
             let queryComponents = query.components(separatedBy: "=")
