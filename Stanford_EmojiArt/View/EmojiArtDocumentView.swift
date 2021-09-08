@@ -48,7 +48,7 @@ struct EmojiArtDocumentView: View {
             .onDrop(of: [.plainText, .url, .image], isTargeted: nil, perform: { providers, location in
                 return drop(providers: providers, at: location, in: geometry)
             })
-            .gesture(zoomGesture())
+            .gesture(panGesture().simultaneously(with: zoomGesture()))
         }
     }
     
@@ -56,6 +56,13 @@ struct EmojiArtDocumentView: View {
     var palette: some View {
         ScrollingEmojisView(emojis: Self.testEmojis)
             .font(.system(size: defaultEmojiFontSize))
+    }
+    
+    // Zooming
+    @GestureState private var gestureZoomScale: CGFloat = 1
+    @State var steadyStateZoomScale: CGFloat = 1
+    private var zoomScale: CGFloat {
+        return steadyStateZoomScale * gestureZoomScale
     }
     
     ///
@@ -68,18 +75,10 @@ struct EmojiArtDocumentView: View {
             }
     }
     
-    @GestureState private var gestureZoomScale: CGFloat = 1
-    
-    @State var steadyStateZoomScale: CGFloat = 1
-    
-    private var zoomScale: CGFloat {
-        return steadyStateZoomScale * gestureZoomScale
-    }
-    
     ///
     private func zoomGesture() -> some Gesture {
         return MagnificationGesture()
-            .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, transaction in
+            .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
                 gestureZoomScale = latestGestureScale
             }
             .onEnded { gestureScaleAtEnd in
@@ -87,6 +86,38 @@ struct EmojiArtDocumentView: View {
             }
     }
     
+    ///
+    private func zoomToFit(_ image: UIImage?, in size: CGSize) {
+        if let image = image,
+               image.size.width > 0,
+               image.size.height > 0,
+               size.width > 0,
+               size.height > 0 {
+            let hZoom = size.width / image.size.width
+            let vZoom = size.height / image.size.height
+            steadyStatePanOffset = .zero
+            steadyStateZoomScale = min(hZoom, vZoom)
+        }
+    }
+    
+    // Dragging
+    @GestureState private var gesturePanOffset: CGSize = CGSize.zero
+    @State var steadyStatePanOffset: CGSize = CGSize.zero
+    
+    private var panOffset: CGSize {
+        (steadyStatePanOffset + gesturePanOffset) * zoomScale
+    }
+    
+    private func panGesture() -> some Gesture {
+        return DragGesture()
+            .updating($gesturePanOffset) { latestDragGestureValue, gesturePanOffset, _ in
+                gesturePanOffset = latestDragGestureValue.translation / zoomScale
+            }
+            .onEnded { finalDragGestureValue in
+                steadyStatePanOffset = steadyStatePanOffset + (finalDragGestureValue.translation / zoomScale)
+            }
+    }
+            
     ///
     private func drop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
         
@@ -129,30 +160,17 @@ struct EmojiArtDocumentView: View {
     /// Emoji objects have their locations saved as x's and y's which represent offset from the centre, e.g. an emoji with location (100,100) means it will be positioned at (centre x + 100, centre y + 100).  This is the value we are retrieving here
     private func convertFromEmojiCoordinates(_ emojiLocation: (x: Int, y: Int), in geometry: GeometryProxy) -> CGPoint {
         let centre = geometry.frame(in: .local).centre
-        return CGPoint(x: centre.x + CGFloat(emojiLocation.x) * zoomScale, y: centre.y + CGFloat(emojiLocation.y) * zoomScale)
+        return CGPoint(x: centre.x + CGFloat(emojiLocation.x) * zoomScale + panOffset.width, y: centre.y + CGFloat(emojiLocation.y) * zoomScale + panOffset.height)
     }
     
     /// This function takes a location in the parent view and returns the location tuple of emoji
     private func convertToEmojiCoordinates(_ location: CGPoint, in geometry: GeometryProxy) -> (x: Int, y: Int) {
         let centre = geometry.frame(in: .local).centre
         let location = CGPoint(
-            x: (location.x - centre.x) / zoomScale,
-            y: (location.y - centre.y) / zoomScale
+            x: (location.x - panOffset.width - centre.x) / zoomScale,
+            y: (location.y - panOffset.height - centre.y) / zoomScale
         )
         return (Int(location.x), Int(location.y))
-    }
-    
-    ///
-    private func zoomToFit(_ image: UIImage?, in size: CGSize) {
-        if let image = image,
-               image.size.width > 0,
-               image.size.height > 0,
-               size.width > 0,
-               size.height > 0 {
-            let hZoom = size.width / image.size.width
-            let vZoom = size.height / image.size.height
-            steadyStateZoomScale = min(hZoom, vZoom)
-        }
     }
     
     static let testEmojis = "🐶🐱🐭🐹🐰🦊🐻🐼🐻‍❄️🐨🐯🦁🐮🐷🐸🐵🐔🐒🦆🦅🦉🦇🐝🪱🐛🦋🐌🐞🐜🪰🐢🐙🕷"
