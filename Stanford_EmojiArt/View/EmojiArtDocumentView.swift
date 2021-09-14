@@ -32,7 +32,7 @@ struct EmojiArtDocumentView: View {
                         .scaleEffect(zoomScale)
                         .position(convertFromEmojiCoordinates((0, 0), in: geometry))
                 )
-                .gesture(doubleTapToZoom(in: geometry.size))
+                .gesture(doubleTapToZoom(in: geometry.size).exclusively(before: singleTap(in: geometry.size)))
                 
                 if document.backgroundImageFetchStatus == .fetching {
                     ProgressView()
@@ -83,6 +83,14 @@ struct EmojiArtDocumentView: View {
                 withAnimation {
                     zoomToFit(document.backgroundImage, in: size)
                 }
+            }
+    }
+    
+    ///
+    private func singleTap(in size: CGSize) -> some Gesture {
+        return TapGesture(count: 1)
+            .onEnded {
+                selectedEmojis.removeAll()
             }
     }
     
