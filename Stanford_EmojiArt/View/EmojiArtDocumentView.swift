@@ -19,7 +19,9 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    ///
+    @State private var selectedEmojis: Set<EmojiArt.Emoji> = []
+    
+    //
     var documentBody: some View {
         GeometryReader { geometry in
             ZStack {
@@ -38,9 +40,13 @@ struct EmojiArtDocumentView: View {
                 } else {
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
+                            .marked(isSelected: selectedEmojis.contains(emoji))
                             .font(.system(size: fontSize(for: emoji)))
                             .scaleEffect(zoomScale)
                             .position(position(for: emoji, in: geometry))
+                            .onTapGesture {
+                                handleTap(on: emoji)
+                            }
                     }
                 }
             }
@@ -52,10 +58,15 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    ///
+    //
     var palette: some View {
         ScrollingEmojisView(emojis: Self.testEmojis)
             .font(.system(size: defaultEmojiFontSize))
+    }
+    
+    //
+    private func handleTap(on emoji: EmojiArt.Emoji) {
+        selectedEmojis.toggle(matching: emoji)
     }
     
     // Zooming
