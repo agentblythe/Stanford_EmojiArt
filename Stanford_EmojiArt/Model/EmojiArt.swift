@@ -11,7 +11,7 @@ struct EmojiArt {
     private(set) var background = Background.blank
     private(set) var emojis = [Emoji]()
     
-    struct Emoji: Identifiable, Hashable {
+    struct Emoji: Identifiable, Hashable { //}, Equatable {
         let text: String
         var x: Int // Offset from centre
         var y: Int // Offset from centre
@@ -25,6 +25,10 @@ struct EmojiArt {
             self.size = size
             self.id = id
         }
+//
+//        static func ==(lhs: Emoji, rhs: Emoji) -> Bool {
+//            return lhs.id == rhs.id
+//        }
     }
     
     init() { }
@@ -40,10 +44,10 @@ struct EmojiArt {
         self.background = background
     }
     
-    mutating func moveEmoji(_ emoji: Emoji, to location: (x: Int, y: Int)) {
+    mutating func moveEmoji(_ emoji: Emoji, by offset: (width: Int, height: Int)) {
         if let index = emojis.index(matching: emoji) {
-            emojis[index].x = location.x
-            emojis[index].y = location.y
+            emojis[index].x += offset.width
+            emojis[index].y += offset.height
         }
     }
     

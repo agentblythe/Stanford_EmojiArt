@@ -12,4 +12,9 @@ extension Collection where Element: Identifiable {
     func index(matching element: Element) -> Self.Index? {
         return self.firstIndex(where: { $0.id == element.id })
     }
+    
+    /// 
+    func contains(matching element: Element) -> Bool {
+        self.contains(where: { $0.id == element.id })
+    }
 }

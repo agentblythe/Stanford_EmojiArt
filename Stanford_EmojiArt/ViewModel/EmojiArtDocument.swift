@@ -81,9 +81,15 @@ class EmojiArtDocument: ObservableObject {
     
     ///
     func moveEmoji(_ emoji: EmojiArt.Emoji, by offset: CGSize) {
-        let newX = emoji.x + Int(offset.width)
-        let newY = emoji.y + Int(offset.height)
-        emojiArt.moveEmoji(emoji, to: (newX, newY))
+//        if let index = emojiArt.emojis.index(matching: emoji) {
+//            emojiArt.emojis[index].x += Int(offset.width)
+//            emojiArt.emojis[index].y += Int(offset.height)
+//        }
+        
+        let width = Int(offset.width)
+        let height = Int(offset.height)
+        
+        emojiArt.moveEmoji(emoji, by: (width, height))
     }
     
     ///

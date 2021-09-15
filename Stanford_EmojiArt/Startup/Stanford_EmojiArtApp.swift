@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct Stanford_EmojiArtApp: App {
+    /// Initialise the View Model which will be passed by Constructor Injection into the View
     let document = EmojiArtDocument()
     
     var body: some Scene {

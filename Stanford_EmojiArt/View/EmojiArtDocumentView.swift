@@ -20,8 +20,7 @@ struct EmojiArtDocumentView: View {
     }
     
     @State private var selectedEmojis: Set<EmojiArt.Emoji> = []
-    
-    //
+
     var documentBody: some View {
         GeometryReader { geometry in
             ZStack {
@@ -40,13 +39,15 @@ struct EmojiArtDocumentView: View {
                 } else {
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
-                            .marked(isSelected: selectedEmojis.contains(emoji))
                             .font(.system(size: fontSize(for: emoji)))
                             .scaleEffect(zoomScale)
+                            .marked(isSelected: selectedEmojis.contains(matching: emoji))
+                            .gesture(dragEmojiGesture(for: emoji))
                             .position(position(for: emoji, in: geometry))
                             .onTapGesture {
-                                handleTap(on: emoji)
+                                selectedEmojis.toggleInclusion(of: emoji)
                             }
+                            
                     }
                 }
             }
@@ -66,7 +67,7 @@ struct EmojiArtDocumentView: View {
     
     //
     private func handleTap(on emoji: EmojiArt.Emoji) {
-        selectedEmojis.toggle(matching: emoji)
+        selectedEmojis.toggleInclusion(of: emoji)
     }
     
     // Zooming
@@ -136,7 +137,51 @@ struct EmojiArtDocumentView: View {
                 steadyStatePanOffset = steadyStatePanOffset + (finalDragGestureValue.translation / zoomScale)
             }
     }
-            
+    
+    /// This gesture handles the selection of an emoji on the document
+    private func selectEmojiGesture(_ emoji: EmojiArt.Emoji) -> some Gesture {
+        TapGesture(count: 1)
+            .onEnded {
+                selectedEmojis.toggleInclusion(of: emoji)
+            }
+    }
+    
+    ///
+    @GestureState private var gestureDragOffset: CGSize = CGSize.zero
+    
+    private func dragEmojiGesture(for tappedEmoji: EmojiArt.Emoji) -> some Gesture {
+        
+        let isSelected = selectedEmojis.contains(matching: tappedEmoji)
+        
+        return DragGesture()
+            .updating($gestureDragOffset) { latestDragGestureValue, gestureDragOffset, _ in
+                
+                gestureDragOffset = latestDragGestureValue.translation / zoomScale
+                
+                if isSelected {
+                    for emoji in selectedEmojis {
+                        document.moveEmoji(emoji, by: gestureDragOffset)
+                    }
+                } else {
+                    document.moveEmoji(tappedEmoji, by: gestureDragOffset)
+                }
+    
+            }
+            .onEnded { finalDragGestureValue in
+                print(selectedEmojis.count)
+                let draggedOffset = finalDragGestureValue.translation / zoomScale
+
+                if isSelected {
+                    for emoji in selectedEmojis {
+                        document.moveEmoji(emoji, by: gestureDragOffset)
+                    }
+                } else {
+                    document.moveEmoji(tappedEmoji, by: draggedOffset)
+                }
+            }
+    }
+    
+    
     ///
     private func drop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
         
@@ -177,18 +222,22 @@ struct EmojiArtDocumentView: View {
     }
     
     /// Emoji objects have their locations saved as x's and y's which represent offset from the centre, e.g. an emoji with location (100,100) means it will be positioned at (centre x + 100, centre y + 100).  This is the value we are retrieving here
-    private func convertFromEmojiCoordinates(_ emojiLocation: (x: Int, y: Int), in geometry: GeometryProxy) -> CGPoint {
-        let centre = geometry.frame(in: .local).centre
-        return CGPoint(x: centre.x + CGFloat(emojiLocation.x) * zoomScale + panOffset.width, y: centre.y + CGFloat(emojiLocation.y) * zoomScale + panOffset.height)
+    private func convertFromEmojiCoordinates(_ location: (x: Int, y: Int), in geometry: GeometryProxy) -> CGPoint {
+        let center = geometry.frame(in: .local).centre
+        return CGPoint(
+            x: center.x + CGFloat(location.x) * zoomScale + panOffset.width,
+            y: center.y + CGFloat(location.y) * zoomScale + panOffset.height
+        )
     }
     
     /// This function takes a location in the parent view and returns the location tuple of emoji
     private func convertToEmojiCoordinates(_ location: CGPoint, in geometry: GeometryProxy) -> (x: Int, y: Int) {
-        let centre = geometry.frame(in: .local).centre
+        let center = geometry.frame(in: .local).centre
         let location = CGPoint(
-            x: (location.x - panOffset.width - centre.x) / zoomScale,
-            y: (location.y - panOffset.height - centre.y) / zoomScale
+            x: (location.x - panOffset.width - center.x) / zoomScale,
+            y: (location.y - panOffset.height - center.y) / zoomScale
         )
+        
         return (Int(location.x), Int(location.y))
     }
     
