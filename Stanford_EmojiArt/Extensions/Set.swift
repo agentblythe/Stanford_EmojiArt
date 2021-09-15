@@ -8,11 +8,12 @@
 import Foundation
 
 extension Set where Element: Identifiable {
-    mutating func toggle(matching element: Element) {
-        if self.contains(element) {
-            self.remove(element)
+    /// 
+    mutating func toggleInclusion(of element: Element) {
+        if let index = index(matching: element) {
+            remove(at: index)
         } else {
-            self.insert(element)
+            insert(element)
         }
     }
 }
