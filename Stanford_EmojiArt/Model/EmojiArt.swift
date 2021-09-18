@@ -51,6 +51,12 @@ struct EmojiArt {
         }
     }
     
+    mutating func deleteEmoji(_ emoji: Emoji) {
+        if let index = emojis.index(matching: emoji) {
+            emojis.remove(at: index)
+        }
+    }
+    
     mutating func scaleEmoji(_ emoji: Emoji, by scale: Int) {
         if let index = emojis.index(matching: emoji) {
             emojis[index].size *= scale

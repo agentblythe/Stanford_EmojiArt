@@ -96,4 +96,9 @@ class EmojiArtDocument: ObservableObject {
     func scaleEmoji(_ emoji: EmojiArt.Emoji, by scale: CGFloat) {
         emojiArt.scaleEmoji(emoji, by: Int(scale.rounded(.toNearestOrAwayFromZero)))
     }
+    
+    ///
+    func deleteEmoji(_ emoji: EmojiArt.Emoji) {
+        emojiArt.deleteEmoji(emoji)
+    }
 }
