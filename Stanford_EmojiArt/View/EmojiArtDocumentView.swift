@@ -12,6 +12,9 @@ struct EmojiArtDocumentView: View {
     
     let defaultEmojiFontSize: CGFloat = 40
     
+    @State var showingDeletionAlert = false
+    @State var longTappedEmoji: EmojiArt.Emoji? = nil
+    
     var body: some View {
         VStack(spacing: 0) {
             documentBody
@@ -19,14 +22,14 @@ struct EmojiArtDocumentView: View {
         }
     }
     
+    /// A Set containing the emojies that have been selected on the document
     @State private var selectedEmojis: Set<EmojiArt.Emoji> = []
 
     var documentBody: some View {
         GeometryReader { geometry in
             ZStack {
                 Color.gray.overlay(
-                    // Replace with AsyncImage
-                    // in Xcode 13
+                    /// Replace with AsyncImage in Xcode 13
                     OptionalImage(uiImage: document.backgroundImage)
                         .scaleEffect(zoomScale)
                         .position(convertFromEmojiCoordinates((0, 0), in: geometry))
@@ -47,6 +50,7 @@ struct EmojiArtDocumentView: View {
                             .onTapGesture {
                                 selectedEmojis.toggleInclusion(of: emoji)
                             }
+                            .gesture(deleteEmojiGesture(on: emoji))
                             
                     }
                 }
@@ -56,28 +60,64 @@ struct EmojiArtDocumentView: View {
                 return drop(providers: providers, at: location, in: geometry)
             })
             .gesture(panGesture().simultaneously(with: zoomGesture()))
+            .alert(isPresented: $showingDeletionAlert, content: {
+                Alert(
+                    title: Text("Delete Emoji?"),
+                    message: Text("Are you sure you want to delete this emoji \(longTappedEmoji?.text ?? "")?"),
+                    primaryButton: .cancel(),
+                    secondaryButton: .destructive(Text("Delete")) {
+                        if let emoji = longTappedEmoji {
+                            document.deleteEmoji(emoji)
+                        }
+                })
+            })
         }
     }
     
-    //
+    ///
     var palette: some View {
         ScrollingEmojisView(emojis: Self.testEmojis)
             .font(.system(size: defaultEmojiFontSize))
     }
     
-    //
+    ///
     private func handleTap(on emoji: EmojiArt.Emoji) {
         selectedEmojis.toggleInclusion(of: emoji)
     }
     
-    // Zooming
+    ///
+    /// Gestures
+    ///
+    
+    /// Gesture for handling single tapping on the background
+    ///
+    private func singleTap(in size: CGSize) -> some Gesture {
+        return TapGesture(count: 1)
+            .onEnded {
+                selectedEmojis.removeAll()
+            }
+    }
+    
+    /// Gesture for handling deletion of an emoji
+    ///
+    private func deleteEmojiGesture(on emoji: EmojiArt.Emoji) -> some Gesture {
+        return LongPressGesture()
+            .onEnded {_ in
+                longTappedEmoji = emoji
+                showingDeletionAlert = true
+            }
+    }
+    
+    /// Gestures for handling zooming
+    ///
     @GestureState private var gestureZoomScale: CGFloat = 1
+    
     @State var steadyStateZoomScale: CGFloat = 1
+    
     private var zoomScale: CGFloat {
         return steadyStateZoomScale * gestureZoomScale
     }
     
-    ///
     private func doubleTapToZoom(in size: CGSize) -> some Gesture {
         return TapGesture(count: 2)
             .onEnded {
@@ -87,15 +127,6 @@ struct EmojiArtDocumentView: View {
             }
     }
     
-    ///
-    private func singleTap(in size: CGSize) -> some Gesture {
-        return TapGesture(count: 1)
-            .onEnded {
-                selectedEmojis.removeAll()
-            }
-    }
-    
-    ///
     private func zoomGesture() -> some Gesture {
         return MagnificationGesture()
             .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
@@ -106,7 +137,6 @@ struct EmojiArtDocumentView: View {
             }
     }
     
-    ///
     private func zoomToFit(_ image: UIImage?, in size: CGSize) {
         if let image = image,
                image.size.width > 0,
@@ -120,8 +150,10 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    // Dragging
+    /// Gesture for handling dragging or panning on the background
+    ///
     @GestureState private var gesturePanOffset: CGSize = CGSize.zero
+    
     @State var steadyStatePanOffset: CGSize = CGSize.zero
     
     private var panOffset: CGSize {
@@ -138,7 +170,8 @@ struct EmojiArtDocumentView: View {
             }
     }
     
-    /// This gesture handles the selection of an emoji on the document
+    /// Gesture for selecting an emoji in the document
+    ///
     private func selectEmojiGesture(_ emoji: EmojiArt.Emoji) -> some Gesture {
         TapGesture(count: 1)
             .onEnded {
@@ -146,6 +179,7 @@ struct EmojiArtDocumentView: View {
             }
     }
     
+    /// Gesture for handling dragging of emojis on the document
     ///
     @GestureState private var gestureDragOffset: CGSize = CGSize.zero
     
@@ -181,16 +215,15 @@ struct EmojiArtDocumentView: View {
             }
     }
     
-    
-    ///
+    /// Function to handle the dropping of images (data), urls (of images) or strings (emojis) onto the background
     private func drop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
         
-        // URL
+        /// URL
         var found = providers.loadObjects(ofType: URL.self) { url in
             document.setBackground(.url(url.imageURL))
         }
         
-        // Data
+        /// Data
         if !found {
             found = providers.loadObjects(ofType: UIImage.self, using: { image in
                 if let data = image.jpegData(compressionQuality: 1.0) {
@@ -199,7 +232,7 @@ struct EmojiArtDocumentView: View {
             })
         }
         
-        // String
+        /// String
         if !found {
             found = providers.loadObjects(ofType: String.self) { string in
                 if let emoji = string.first, emoji.isEmoji {
