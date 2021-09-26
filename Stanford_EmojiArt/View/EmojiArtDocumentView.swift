@@ -130,10 +130,23 @@ struct EmojiArtDocumentView: View {
     private func zoomGesture() -> some Gesture {
         return MagnificationGesture()
             .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
-                gestureZoomScale = latestGestureScale
+                
+                print(latestGestureScale)
+                
+                if selectedEmojis.isEmpty {
+                    gestureZoomScale = latestGestureScale
+                } else {
+                    for emoji in selectedEmojis {
+                        document.scaleEmoji(emoji, by: latestGestureScale)
+                    }
+                }
             }
             .onEnded { gestureScaleAtEnd in
-                steadyStateZoomScale *= gestureScaleAtEnd
+                if selectedEmojis.isEmpty {
+                    steadyStateZoomScale *= gestureScaleAtEnd
+                } else {
+                    
+                }
             }
     }
     

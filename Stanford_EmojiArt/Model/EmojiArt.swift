@@ -9,7 +9,7 @@ import Foundation
 
 struct EmojiArt {
     private(set) var background = Background.blank
-    private(set) var emojis = [Emoji]()
+    var emojis = [Emoji]()
     
     struct Emoji: Identifiable, Hashable { //}, Equatable {
         let text: String
@@ -25,10 +25,10 @@ struct EmojiArt {
             self.size = size
             self.id = id
         }
-//
-//        static func ==(lhs: Emoji, rhs: Emoji) -> Bool {
-//            return lhs.id == rhs.id
-//        }
+
+        static func ==(lhs: Emoji, rhs: Emoji) -> Bool {
+            return lhs.id == rhs.id
+        }
     }
     
     init() { }
@@ -54,12 +54,6 @@ struct EmojiArt {
     mutating func deleteEmoji(_ emoji: Emoji) {
         if let index = emojis.index(matching: emoji) {
             emojis.remove(at: index)
-        }
-    }
-    
-    mutating func scaleEmoji(_ emoji: Emoji, by scale: Int) {
-        if let index = emojis.index(matching: emoji) {
-            emojis[index].size *= scale
         }
     }
 }
