@@ -42,8 +42,7 @@ struct EmojiArtDocumentView: View {
                 } else {
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
-                            .font(.system(size: fontSize(for: emoji)))
-                            .scaleEffect(zoomScale)
+                            .animatableFont(size: fontSize(for: emoji))
                             .marked(isSelected: selectedEmojis.contains(matching: emoji))
                             .gesture(dragEmojiGesture(for: emoji))
                             .position(position(for: emoji, in: geometry))
@@ -112,6 +111,8 @@ struct EmojiArtDocumentView: View {
     ///
     @GestureState private var gestureZoomScale: CGFloat = 1
     
+    @GestureState private var gestureEmojiZoomScale: CGFloat = 1
+    
     @State var steadyStateZoomScale: CGFloat = 1
     
     private var zoomScale: CGFloat {
@@ -128,8 +129,24 @@ struct EmojiArtDocumentView: View {
     }
     
     private func zoomGesture() -> some Gesture {
+        if !selectedEmojis.isEmpty {
+            return MagnificationGesture()
+                .updating($gestureEmojiZoomScale) { latestGestureScale, gestureEmojiZoomScale, _ in
+                    gestureEmojiZoomScale = latestGestureScale
+                    selectedEmojis.forEach { emoji in
+                        document.scaleEmoji(emoji, by: gestureEmojiZoomScale)
+                    }
+                }
+                .onEnded { gestureScaleAtEnd in
+                    selectedEmojis.forEach { emoji in
+                        document.scaleEmoji(emoji, by: gestureScaleAtEnd)
+                    }
+                }
+        }
+        
         return MagnificationGesture()
             .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
+                
                 gestureZoomScale = latestGestureScale
             }
             .onEnded { gestureScaleAtEnd in
@@ -246,7 +263,11 @@ struct EmojiArtDocumentView: View {
     
     ///
     private func fontSize(for emoji: EmojiArt.Emoji) -> CGFloat {
-        CGFloat(emoji.size)
+        let originalSize = CGFloat(emoji.size) * zoomScale
+        if selectedEmojis.contains(emoji) {
+            return originalSize * gestureZoomScale
+        }
+        return originalSize
     }
     
     ///

@@ -46,7 +46,7 @@ class EmojiArtDocument: ObservableObject {
         emojiArt = EmojiArt()
     }
     
-    /// 
+    ///
     var emojis: [EmojiArt.Emoji] {
         emojiArt.emojis
     }
@@ -81,20 +81,25 @@ class EmojiArtDocument: ObservableObject {
     
     ///
     func moveEmoji(_ emoji: EmojiArt.Emoji, by offset: CGSize) {
-//        if let index = emojiArt.emojis.index(matching: emoji) {
-//            emojiArt.emojis[index].x += Int(offset.width)
-//            emojiArt.emojis[index].y += Int(offset.height)
-//        }
-        
         let width = Int(offset.width)
         let height = Int(offset.height)
-        
         emojiArt.moveEmoji(emoji, by: (width, height))
     }
     
     ///
     func scaleEmoji(_ emoji: EmojiArt.Emoji, by scale: CGFloat) {
-        emojiArt.scaleEmoji(emoji, by: Int(scale.rounded(.toNearestOrAwayFromZero)))
+        if let index = emojiArt.emojis.index(matching: emoji) {
+            //print(emojiArt.emojis[index].size)
+            
+            let scaledSize = CGFloat(emojiArt.emojis[index].size) * scale
+            let roundedScaledSize = scaledSize.rounded(.toNearestOrAwayFromZero)
+            let newSize = Int(roundedScaledSize)
+            emojiArt.emojis[index].size = newSize
+            
+//            emojiArt.emojis[index].size =
+//                Int((CGFloat(emojiArt.emojis[index].size) * scale).rounded(.toNearestOrAwayFromZero))
+            //print(emojiArt.emojis[index].size)
+        }
     }
     
     ///
