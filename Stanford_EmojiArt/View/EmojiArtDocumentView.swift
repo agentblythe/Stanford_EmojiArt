@@ -42,7 +42,7 @@ struct EmojiArtDocumentView: View {
                 } else {
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
-                            .font(.system(size: fontSize(for: emoji)))
+                            .animatableFont(size: fontSize(for: emoji))
                             .marked(isSelected: selectedEmojis.contains(matching: emoji))
                             .gesture(dragEmojiGesture(for: emoji))
                             .position(position(for: emoji, in: geometry))
