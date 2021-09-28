@@ -25,8 +25,19 @@ struct EmojiArtDocumentView: View {
     /// A Set containing the emojis that have been selected on the document
     @State private var selectedEmojis: Set<EmojiArt.Emoji> = []
     
+    @ViewBuilder
     var background: some View {
-        OptionalImage(uiImage: document.backgroundImage)
+//        if let url = document.background.url,
+//           #available(iOS 15.0, *) {
+//            AsyncImage(url: url) { image in
+//                image
+//            } placeholder: {
+//                ProgressView()
+//                    .scaleEffect(10)
+//            }
+//        } else {
+            OptionalImage(uiImage: document.backgroundImage)
+        //}
     }
 
     var documentBody: some View {
