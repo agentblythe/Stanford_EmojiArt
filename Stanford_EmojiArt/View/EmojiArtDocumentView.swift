@@ -22,15 +22,18 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    /// A Set containing the emojies that have been selected on the document
+    /// A Set containing the emojis that have been selected on the document
     @State private var selectedEmojis: Set<EmojiArt.Emoji> = []
+    
+    var background: some View {
+        OptionalImage(uiImage: document.backgroundImage)
+    }
 
     var documentBody: some View {
         GeometryReader { geometry in
             ZStack {
                 Color.gray.overlay(
-                    /// Replace with AsyncImage in Xcode 13
-                    OptionalImage(uiImage: document.backgroundImage)
+                    background
                         .scaleEffect(zoomScale)
                         .position(convertFromEmojiCoordinates((0, 0), in: geometry))
                 )
@@ -50,7 +53,7 @@ struct EmojiArtDocumentView: View {
                                 selectedEmojis.toggleInclusion(of: emoji)
                             }
                             .gesture(deleteEmojiGesture(on: emoji))
-                            
+
                     }
                 }
             }
