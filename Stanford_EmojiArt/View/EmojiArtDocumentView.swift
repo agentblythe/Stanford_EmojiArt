@@ -10,6 +10,8 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
     @ObservedObject var document: EmojiArtDocument
     
+    @ObservedObject var palettes: PaletteStore
+    
     let defaultEmojiFontSize: CGFloat = 40
     
     @State var showingDeletionAlert = false
@@ -27,17 +29,7 @@ struct EmojiArtDocumentView: View {
     
     @ViewBuilder
     var background: some View {
-//        if let url = document.background.url,
-//           #available(iOS 15.0, *) {
-//            AsyncImage(url: url) { image in
-//                image
-//            } placeholder: {
-//                ProgressView()
-//                    .scaleEffect(10)
-//            }
-//        } else {
-            OptionalImage(uiImage: document.backgroundImage)
-        //}
+        OptionalImage(uiImage: document.backgroundImage)
     }
 
     var documentBody: some View {
@@ -314,6 +306,6 @@ struct EmojiArtDocumentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiArtDocumentView(document: EmojiArtDocument())
+        EmojiArtDocumentView(document: EmojiArtDocument(), palettes: PaletteStore(named: "Default"))
     }
 }

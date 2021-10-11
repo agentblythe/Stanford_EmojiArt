@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct EmojiArt {
+struct EmojiArt: Codable {
     private(set) var background = Background.blank
     var emojis = [Emoji]()
     
-    struct Emoji: Identifiable, Hashable { //}, Equatable {
+    struct Emoji: Identifiable, Hashable, Codable { //}, Equatable {
         let text: String
         var x: Int // Offset from centre
         var y: Int // Offset from centre
@@ -29,6 +29,19 @@ struct EmojiArt {
         static func ==(lhs: Emoji, rhs: Emoji) -> Bool {
             return lhs.id == rhs.id
         }
+    }
+    
+    func json() throws -> Data {
+        return try JSONEncoder().encode(self)
+    }
+    
+    init(from json: Data) throws {
+        self = try JSONDecoder().decode(EmojiArt.self, from: json)
+    }
+    
+    init(from url: URL) throws {
+        let data = try Data(contentsOf: url)
+        self = try EmojiArt(from: data)
     }
     
     init() { }

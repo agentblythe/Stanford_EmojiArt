@@ -10,9 +10,51 @@ import SwiftUI
 class EmojiArtDocument: ObservableObject {
     @Published private var emojiArt: EmojiArt {
         didSet {
+            scheduleAutosave()
             if emojiArt.background != oldValue.background {
                 fetchBackgroundImageDataIfNecessary()
             }
+        }
+    }
+    
+    private var autosaveTimer: Timer?
+    
+    private func scheduleAutosave() {
+        // If we already have a timer, then invalidate it which cancels
+        // the previous one.
+        // The last one is the only one we care about
+        autosaveTimer?.invalidate()
+        autosaveTimer = Timer.scheduledTimer(withTimeInterval: Autosave.coalescingInterval, repeats: false) { _ in
+            self.autosave()
+        }
+    }
+    
+    private struct Autosave {
+        static let coalescingInterval = 5.0
+        static let filename = "Autosaved.emojiart"
+        static var url: URL? {
+            let documentDirectory = FileManager.default
+            return documentDirectory.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent(filename)
+        }
+    }
+    
+    private func autosave() {
+        if let url = Autosave.url {
+            save(to: url)
+        }
+    }
+    
+    private func save(to url: URL) {
+        let thisFunction = "\(String(describing: self)).\(#function)"
+        do {
+            let data = try emojiArt.json()
+            print("\(thisFunction) json = \(String(data: data, encoding: .utf8) ?? "nil")")
+            try data.write(to: url)
+            print("\(thisFunction) success!")
+        } catch let encodingError where encodingError is EncodingError {
+            print("\(thisFunction) encodingError = \(encodingError.localizedDescription)")
+        } catch {
+            print("\(thisFunction) error = \(error)")
         }
     }
     
@@ -43,7 +85,13 @@ class EmojiArtDocument: ObservableObject {
     }
     
     init() {
-        emojiArt = EmojiArt()
+        if let url = Autosave.url,
+           let autoSavedEmojiArt = try? EmojiArt(from: url) {
+            emojiArt = autoSavedEmojiArt
+            fetchBackgroundImageDataIfNecessary()
+        } else {
+            emojiArt = EmojiArt()
+        }
     }
     
     ///
