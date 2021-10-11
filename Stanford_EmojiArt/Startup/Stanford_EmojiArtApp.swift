@@ -9,12 +9,13 @@ import SwiftUI
 
 @main
 struct Stanford_EmojiArtApp: App {
-    /// Initialise the View Model which will be passed by Constructor Injection into the View
+    /// Initialise the View Models which will be passed by Constructor Injection into the View
     let document = EmojiArtDocument()
+    let palettes = PaletteStore(named: "Default")
     
     var body: some Scene {
         WindowGroup {
-            EmojiArtDocumentView(document: document)
+            EmojiArtDocumentView(document: document, palettes: PaletteStore(named: "Default"))
         }
     }
 }
