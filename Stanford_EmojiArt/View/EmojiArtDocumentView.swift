@@ -10,17 +10,13 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
     @ObservedObject var document: EmojiArtDocument
     
-    @ObservedObject var palettes: PaletteStore
-    
-    let defaultEmojiFontSize: CGFloat = 40
-    
     @State var showingDeletionAlert = false
     @State var longTappedEmoji: EmojiArt.Emoji? = nil
     
     var body: some View {
         VStack(spacing: 0) {
             documentBody
-            palette
+            PaletteChooser(emojiFontSize: FontConstants.defaultEmojiFontSize)
         }
     }
     
@@ -77,12 +73,6 @@ struct EmojiArtDocumentView: View {
                 })
             })
         }
-    }
-    
-    ///
-    var palette: some View {
-        ScrollingEmojisView(emojis: Self.testEmojis)
-            .font(.system(size: defaultEmojiFontSize))
     }
     
     ///
@@ -259,7 +249,7 @@ struct EmojiArtDocumentView: View {
         if !found {
             found = providers.loadObjects(ofType: String.self) { string in
                 if let emoji = string.first, emoji.isEmoji {
-                    document.addEmoji(String(emoji), at: convertToEmojiCoordinates(location, in: geometry), size: defaultEmojiFontSize / steadyStateZoomScale)
+                    document.addEmoji(String(emoji), at: convertToEmojiCoordinates(location, in: geometry), size: FontConstants.defaultEmojiFontSize / steadyStateZoomScale)
                 }
             }
         }
@@ -300,12 +290,10 @@ struct EmojiArtDocumentView: View {
         
         return (Int(location.x), Int(location.y))
     }
-    
-    static let testEmojis = "🐶🐱🐭🐹🐰🦊🐻🐼🐻‍❄️🐨🐯🦁🐮🐷🐸🐵🐔🐒🦆🦅🦉🦇🐝🪱🐛🦋🐌🐞🐜🪰🐢🐙🕷"
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiArtDocumentView(document: EmojiArtDocument(), palettes: PaletteStore(named: "Default"))
+        EmojiArtDocumentView(document: EmojiArtDocument())
     }
 }
