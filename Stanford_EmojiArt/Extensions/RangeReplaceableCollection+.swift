@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Metal
 
 extension RangeReplaceableCollection where Element: Hashable {
     var removingDuplicateCharacters: Self {
