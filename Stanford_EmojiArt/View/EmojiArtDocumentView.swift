@@ -10,17 +10,14 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
     @ObservedObject var document: EmojiArtDocument
     
-    @ObservedObject var palettes: PaletteStore
-    
-    let defaultEmojiFontSize: CGFloat = 40
-    
-    @State var showingDeletionAlert = false
     @State var longTappedEmoji: EmojiArt.Emoji? = nil
+    
+    @State var alertToShow: IdentifiableAlert?
     
     var body: some View {
         VStack(spacing: 0) {
             documentBody
-            palette
+            PaletteChooser(emojiFontSize: FontConstants.defaultEmojiFontSize)
         }
     }
     
@@ -65,24 +62,38 @@ struct EmojiArtDocumentView: View {
                 return drop(providers: providers, at: location, in: geometry)
             })
             .gesture(panGesture().simultaneously(with: zoomGesture()))
-            .alert(isPresented: $showingDeletionAlert, content: {
-                Alert(
-                    title: Text("Delete Emoji?"),
-                    message: Text("Are you sure you want to delete this emoji \(longTappedEmoji?.text ?? "")?"),
-                    primaryButton: .cancel(),
-                    secondaryButton: .destructive(Text("Delete")) {
-                        if let emoji = longTappedEmoji {
-                            document.deleteEmoji(emoji)
-                        }
-                })
-            })
+            .alert(item: $alertToShow) { alertToShow in
+                alertToShow.alert()
+            }
+            .onChange(of: document.backgroundImageFetchStatus) { status in
+                switch status {
+                case .failed(let url):
+                    showBackgroundImageFetchAlert(url)
+                default:
+                    break
+                }
+            }
         }
     }
     
-    ///
-    var palette: some View {
-        ScrollingEmojisView(emojis: Self.testEmojis)
-            .font(.system(size: defaultEmojiFontSize))
+    private func showConfirmEmojiDeletionAlert() {
+        alertToShow = nil
+        alertToShow = IdentifiableAlert(id: "Confirm Deletion of Emoji", alert: {
+            Alert(title: Text("Delete Emoji?"),
+                  message: Text("Are you sure you want to delete this emoji \(longTappedEmoji?.text ?? "")?"),
+                  primaryButton: .cancel(),
+                  secondaryButton: .destructive(Text("Delete")) {
+                if let emoji = longTappedEmoji {
+                    document.deleteEmoji(emoji)
+                }
+            })
+        })
+    }
+    
+    private func showBackgroundImageFetchAlert(_ url: URL) {
+        alertToShow = IdentifiableAlert(id: "Fetch Failed: " + url.absoluteString, alert: {
+            Alert(title: Text("Background Image Fetch"), message: Text("Coudln't load image from \(url)"), dismissButton: .default(Text("OK")))
+        })
     }
     
     ///
@@ -109,7 +120,7 @@ struct EmojiArtDocumentView: View {
         return LongPressGesture()
             .onEnded {_ in
                 longTappedEmoji = emoji
-                showingDeletionAlert = true
+                showConfirmEmojiDeletionAlert()
             }
     }
     
@@ -259,7 +270,7 @@ struct EmojiArtDocumentView: View {
         if !found {
             found = providers.loadObjects(ofType: String.self) { string in
                 if let emoji = string.first, emoji.isEmoji {
-                    document.addEmoji(String(emoji), at: convertToEmojiCoordinates(location, in: geometry), size: defaultEmojiFontSize / steadyStateZoomScale)
+                    document.addEmoji(String(emoji), at: convertToEmojiCoordinates(location, in: geometry), size: FontConstants.defaultEmojiFontSize / steadyStateZoomScale)
                 }
             }
         }
@@ -300,12 +311,10 @@ struct EmojiArtDocumentView: View {
         
         return (Int(location.x), Int(location.y))
     }
-    
-    static let testEmojis = "🐶🐱🐭🐹🐰🦊🐻🐼🐻‍❄️🐨🐯🦁🐮🐷🐸🐵🐔🐒🦆🦅🦉🦇🐝🪱🐛🦋🐌🐞🐜🪰🐢🐙🕷"
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        EmojiArtDocumentView(document: EmojiArtDocument(), palettes: PaletteStore(named: "Default"))
+        EmojiArtDocumentView(document: EmojiArtDocument())
     }
 }

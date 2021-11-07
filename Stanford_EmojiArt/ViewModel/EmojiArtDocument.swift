@@ -72,6 +72,11 @@ class EmojiArtDocument: ObservableObject {
                         if self?.emojiArt.background == EmojiArt.Background.url(url) {
                             self?.backgroundImage = UIImage(data: imageData)
                         }
+                        
+                        if self?.backgroundImage == nil {
+                            self?.backgroundImageFetchStatus = .failed(url)
+                        }
+                        
                     }
                 }
             }
@@ -110,9 +115,10 @@ class EmojiArtDocument: ObservableObject {
     ///
     @Published var backgroundImageFetchStatus = BackgroundImageFetchStatus.idle
     
-    enum BackgroundImageFetchStatus {
+    enum BackgroundImageFetchStatus: Equatable {
         case idle
         case fetching
+        case failed(URL)
     }
     
     // MARK: Intents
