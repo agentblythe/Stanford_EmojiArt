@@ -10,8 +10,9 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
     @ObservedObject var document: EmojiArtDocument
     
-    @State var showingDeletionAlert = false
     @State var longTappedEmoji: EmojiArt.Emoji? = nil
+    
+    @State var alertToShow: IdentifiableAlert?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -61,18 +62,38 @@ struct EmojiArtDocumentView: View {
                 return drop(providers: providers, at: location, in: geometry)
             })
             .gesture(panGesture().simultaneously(with: zoomGesture()))
-            .alert(isPresented: $showingDeletionAlert, content: {
-                Alert(
-                    title: Text("Delete Emoji?"),
-                    message: Text("Are you sure you want to delete this emoji \(longTappedEmoji?.text ?? "")?"),
-                    primaryButton: .cancel(),
-                    secondaryButton: .destructive(Text("Delete")) {
-                        if let emoji = longTappedEmoji {
-                            document.deleteEmoji(emoji)
-                        }
-                })
-            })
+            .alert(item: $alertToShow) { alertToShow in
+                alertToShow.alert()
+            }
+            .onChange(of: document.backgroundImageFetchStatus) { status in
+                switch status {
+                case .failed(let url):
+                    showBackgroundImageFetchAlert(url)
+                default:
+                    break
+                }
+            }
         }
+    }
+    
+    private func showConfirmEmojiDeletionAlert() {
+        alertToShow = nil
+        alertToShow = IdentifiableAlert(id: "Confirm Deletion of Emoji", alert: {
+            Alert(title: Text("Delete Emoji?"),
+                  message: Text("Are you sure you want to delete this emoji \(longTappedEmoji?.text ?? "")?"),
+                  primaryButton: .cancel(),
+                  secondaryButton: .destructive(Text("Delete")) {
+                if let emoji = longTappedEmoji {
+                    document.deleteEmoji(emoji)
+                }
+            })
+        })
+    }
+    
+    private func showBackgroundImageFetchAlert(_ url: URL) {
+        alertToShow = IdentifiableAlert(id: "Fetch Failed: " + url.absoluteString, alert: {
+            Alert(title: Text("Background Image Fetch"), message: Text("Coudln't load image from \(url)"), dismissButton: .default(Text("OK")))
+        })
     }
     
     ///
@@ -99,7 +120,7 @@ struct EmojiArtDocumentView: View {
         return LongPressGesture()
             .onEnded {_ in
                 longTappedEmoji = emoji
-                showingDeletionAlert = true
+                showConfirmEmojiDeletionAlert()
             }
     }
     
