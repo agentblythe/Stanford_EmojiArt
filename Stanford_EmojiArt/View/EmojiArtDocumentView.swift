@@ -10,8 +10,6 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
     @ObservedObject var document: EmojiArtDocument
     
-    @State var longTappedEmoji: EmojiArt.Emoji? = nil
-    
     @State var alertToShow: IdentifiableAlert?
     
     var body: some View {
@@ -50,10 +48,12 @@ struct EmojiArtDocumentView: View {
                             .gesture(dragEmojiGesture(for: emoji))
                             .position(position(for: emoji, in: geometry))
                             .onTapGesture {
+                                print(emoji)
                                 selectedEmojis.toggleInclusion(of: emoji)
                             }
-                            .gesture(deleteEmojiGesture(on: emoji))
-
+                            .onLongPressGesture {
+                                showConfirmEmojiDeletionAlert(for: emoji)
+                            }
                     }
                 }
             }
@@ -76,16 +76,14 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    private func showConfirmEmojiDeletionAlert() {
+    private func showConfirmEmojiDeletionAlert(for emoji: EmojiArt.Emoji) {
         alertToShow = nil
         alertToShow = IdentifiableAlert(id: "Confirm Deletion of Emoji", alert: {
             Alert(title: Text("Delete Emoji?"),
-                  message: Text("Are you sure you want to delete this emoji \(longTappedEmoji?.text ?? "")?"),
+                  message: Text("Are you sure you want to delete this emoji \(emoji.text)?"),
                   primaryButton: .cancel(),
                   secondaryButton: .destructive(Text("Delete")) {
-                if let emoji = longTappedEmoji {
-                    document.deleteEmoji(emoji)
-                }
+                document.deleteEmoji(emoji)
             })
         })
     }
@@ -111,16 +109,6 @@ struct EmojiArtDocumentView: View {
         return TapGesture(count: 1)
             .onEnded {
                 selectedEmojis.removeAll()
-            }
-    }
-    
-    /// Gesture for handling deletion of an emoji
-    ///
-    private func deleteEmojiGesture(on emoji: EmojiArt.Emoji) -> some Gesture {
-        return LongPressGesture()
-            .onEnded {_ in
-                longTappedEmoji = emoji
-                showConfirmEmojiDeletionAlert()
             }
     }
     
@@ -207,7 +195,8 @@ struct EmojiArtDocumentView: View {
     /// Gesture for selecting an emoji in the document
     ///
     private func selectEmojiGesture(_ emoji: EmojiArt.Emoji) -> some Gesture {
-        TapGesture(count: 1)
+        print(emoji)
+        return TapGesture(count: 1)
             .onEnded {
                 selectedEmojis.toggleInclusion(of: emoji)
             }
