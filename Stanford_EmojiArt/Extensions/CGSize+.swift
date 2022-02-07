@@ -30,3 +30,5 @@ extension CGSize {
         CGSize(width: lhs.width/rhs, height: lhs.height/rhs)
     }
 }
+
+extension CGSize: RawRepresentable { }

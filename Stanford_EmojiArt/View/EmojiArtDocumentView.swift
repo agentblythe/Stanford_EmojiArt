@@ -74,10 +74,14 @@ struct EmojiArtDocumentView: View {
                 }
             }
             .onReceive(document.$backgroundImage) { image in
-                zoomToFit(image, in: geometry.size)
+                if autozoom {
+                    zoomToFit(image, in: geometry.size)
+                }
             }
         }
     }
+    
+    @State private var autozoom = false
     
     private func showConfirmEmojiDeletionAlert(for emoji: EmojiArt.Emoji) {
         alertToShow = nil
@@ -121,7 +125,8 @@ struct EmojiArtDocumentView: View {
     
     @GestureState private var gestureEmojiZoomScale: CGFloat = 1
     
-    @State var steadyStateZoomScale: CGFloat = 1
+    @SceneStorage("EmojiArtDocumentView.steadyStateZoomScale")
+    var steadyStateZoomScale: CGFloat = 1
     
     private var zoomScale: CGFloat {
         return steadyStateZoomScale * gestureZoomScale
@@ -179,7 +184,8 @@ struct EmojiArtDocumentView: View {
     ///
     @GestureState private var gesturePanOffset: CGSize = CGSize.zero
     
-    @State var steadyStatePanOffset: CGSize = CGSize.zero
+    @SceneStorage("EmojiArtDocumentView.steadyStatePanOffset")
+    var steadyStatePanOffset: CGSize = CGSize.zero
     
     private var panOffset: CGSize {
         (steadyStatePanOffset + gesturePanOffset) * zoomScale
@@ -246,6 +252,7 @@ struct EmojiArtDocumentView: View {
         
         /// URL
         var found = providers.loadObjects(ofType: URL.self) { url in
+            autozoom = true
             document.setBackground(.url(url.imageURL))
         }
         

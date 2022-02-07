@@ -28,6 +28,8 @@
 		4999EDA72702305F000F9E44 /* AnimatableSystemFontModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4999EDA62702305F000F9E44 /* AnimatableSystemFontModifier.swift */; };
 		499D162226F10DEF002D4892 /* Marked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499D162126F10DEF002D4892 /* Marked.swift */; };
 		499D162426F11237002D4892 /* Set+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 499D162326F11237002D4892 /* Set+.swift */; };
+		49B7B06427B1998600778EDC /* CGFloat+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B7B06327B1998600778EDC /* CGFloat+.swift */; };
+		49B7B06627B199A200778EDC /* RawRepresentable+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B7B06527B199A200778EDC /* RawRepresentable+.swift */; };
 		49F5DDF0273710870042062B /* IdentifiableAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F5DDEF273710870042062B /* IdentifiableAlert.swift */; };
 		49F8DDF827271FDF0030942F /* PaletteChooser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F8DDF727271FDF0030942F /* PaletteChooser.swift */; };
 		49F8DDFD272721B80030942F /* RangeReplaceableCollection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F8DDFC272721B80030942F /* RangeReplaceableCollection+.swift */; };
@@ -58,6 +60,8 @@
 		4999EDA62702305F000F9E44 /* AnimatableSystemFontModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableSystemFontModifier.swift; sourceTree = "<group>"; };
 		499D162126F10DEF002D4892 /* Marked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Marked.swift; sourceTree = "<group>"; };
 		499D162326F11237002D4892 /* Set+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+.swift"; sourceTree = "<group>"; };
+		49B7B06327B1998600778EDC /* CGFloat+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+.swift"; sourceTree = "<group>"; };
+		49B7B06527B199A200778EDC /* RawRepresentable+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RawRepresentable+.swift"; sourceTree = "<group>"; };
 		49F5DDEF273710870042062B /* IdentifiableAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentifiableAlert.swift; sourceTree = "<group>"; };
 		49F8DDF727271FDF0030942F /* PaletteChooser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaletteChooser.swift; sourceTree = "<group>"; };
 		49F8DDFC272721B80030942F /* RangeReplaceableCollection+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RangeReplaceableCollection+.swift"; sourceTree = "<group>"; };
@@ -158,6 +162,8 @@
 				499D162326F11237002D4892 /* Set+.swift */,
 				4932E8AC26E4C86100618678 /* URL+.swift */,
 				49F8DDFC272721B80030942F /* RangeReplaceableCollection+.swift */,
+				49B7B06327B1998600778EDC /* CGFloat+.swift */,
+				49B7B06527B199A200778EDC /* RawRepresentable+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -269,6 +275,7 @@
 				4986015E2736ACFF00D224E0 /* PaletteManager.swift in Sources */,
 				49F8DDFD272721B80030942F /* RangeReplaceableCollection+.swift in Sources */,
 				49246FB9272D66C20089336D /* PaletteEditor.swift in Sources */,
+				49B7B06427B1998600778EDC /* CGFloat+.swift in Sources */,
 				491930CC26E0138B00F4E126 /* EmojiArt.swift in Sources */,
 				4932E8B126E9459600618678 /* CGSize+.swift in Sources */,
 				491930DC26E3BEC700F4E126 /* Character+.swift in Sources */,
@@ -276,6 +283,7 @@
 				4999EDA72702305F000F9E44 /* AnimatableSystemFontModifier.swift in Sources */,
 				499D162426F11237002D4892 /* Set+.swift in Sources */,
 				491930D826E37E6400F4E126 /* CGRect+.swift in Sources */,
+				49B7B06627B199A200778EDC /* RawRepresentable+.swift in Sources */,
 				491930D326E2B2EC00F4E126 /* Collection+.swift in Sources */,
 				49246FB7272D550A0089336D /* AnimatedActionButton.swift in Sources */,
 				491930BC26E003B200F4E126 /* EmojiArtDocumentView.swift in Sources */,
